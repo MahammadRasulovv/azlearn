@@ -16,12 +16,14 @@ import type { Course, LessonProgress } from '@/types'
 export default function CoursePage() {
   const router = useRouter()
   const params = useParams()
-  const { token } = useAuthStore()
+  const { token, _hasHydrated } = useAuthStore()
   const id = params.id as string
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!token) router.push('/login')
-  }, [token, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated, token])
 
   const { data: course, isLoading } = useQuery<Course>({
     queryKey: ['course', id],
@@ -99,7 +101,7 @@ export default function CoursePage() {
           {course.lessons.length > 0 && (
             <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
+                className="h-full rounded-full bg-linear-to-r from-indigo-500 to-violet-500"
                 initial={{ width: 0 }}
                 animate={{ width: `${(completedCount / course.lessons.length) * 100}%` }}
                 transition={{ duration: 1, ease: 'easeOut' }}

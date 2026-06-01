@@ -16,11 +16,13 @@ const medalColors = ['text-amber-500', 'text-slate-400', 'text-amber-700']
 
 export default function LeaderboardPage() {
   const router = useRouter()
-  const { token, user: me } = useAuthStore()
+  const { token, user: me, _hasHydrated } = useAuthStore()
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!token) router.push('/login')
-  }, [token, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated, token])
 
   const { data: users, isLoading } = useQuery<User[]>({
     queryKey: ['leaderboard'],

@@ -15,12 +15,14 @@ import type { Course } from '@/types'
 
 export default function CoursesPage() {
   const router = useRouter()
-  const { token } = useAuthStore()
+  const { token, _hasHydrated } = useAuthStore()
   const [search, setSearch] = useState('')
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!token) router.push('/login')
-  }, [token, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated, token])
 
   const { data: courses, isLoading } = useQuery<Course[]>({
     queryKey: ['courses'],

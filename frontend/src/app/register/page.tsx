@@ -32,8 +32,13 @@ export default function RegisterPage() {
       await fetchMe()
       router.push('/dashboard')
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
-      setError(msg || 'Qeydiyyat alınmadı')
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+      const msg = Array.isArray(detail)
+        ? (detail as { msg: string }[]).map((d) => d.msg).join(', ')
+        : typeof detail === 'string'
+        ? detail
+        : 'Qeydiyyat alınmadı'
+      setError(msg)
     } finally {
       setLoading(false)
     }

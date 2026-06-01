@@ -29,8 +29,13 @@ export default function LoginPage() {
       await fetchMe()
       router.push('/dashboard')
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
-      setError(msg || 'Giriş alınmadı')
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+      const msg = Array.isArray(detail)
+        ? (detail as { msg: string }[]).map((d) => d.msg).join(', ')
+        : typeof detail === 'string'
+        ? detail
+        : 'Giriş alınmadı'
+      setError(msg)
     } finally {
       setLoading(false)
     }

@@ -18,14 +18,16 @@ export default function LessonPage() {
   const router = useRouter()
   const params = useParams()
   const qc = useQueryClient()
-  const { token, fetchMe } = useAuthStore()
+  const { token, fetchMe, _hasHydrated } = useAuthStore()
   const id = params.id as string
   const [showQuiz, setShowQuiz] = useState(false)
   const [xpToast, setXpToast] = useState<number | null>(null)
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!token) router.push('/login')
-  }, [token, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated, token])
 
   const { data: lesson, isLoading } = useQuery<Lesson>({
     queryKey: ['lesson', id],

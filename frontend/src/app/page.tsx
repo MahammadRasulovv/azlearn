@@ -47,7 +47,7 @@ export default function LandingPage() {
             </span>
             <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
               Proqramlaşdırmanı{' '}
-              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
                 Azərbaycanca
               </span>{' '}
               öyrən

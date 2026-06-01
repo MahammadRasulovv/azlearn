@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
@@ -12,28 +12,57 @@ import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import type { MyProgress, Course } from '@/types'
 
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="h-16 border-b border-slate-200 bg-white" />
+      <div className="mx-auto max-w-7xl px-4 py-8 space-y-6 animate-pulse">
+        <div className="h-8 w-48 rounded-lg bg-slate-200" />
+        <div className="h-20 rounded-xl bg-slate-200" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-24 rounded-xl bg-slate-200" />
+          ))}
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-44 rounded-xl bg-slate-200" />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, token, fetchMe } = useAuthStore()
+  const { user, token, fetchMe, _hasHydrated } = useAuthStore()
+  const [isInitializing, setIsInitializing] = useState(true)
 
   useEffect(() => {
-    if (!token) { router.push('/login'); return }
-    fetchMe()
-  }, [token, router, fetchMe])
+    if (!_hasHydrated) return
+    if (!token) {
+      router.push('/login')
+      return
+    }
+    fetchMe().finally(() => setIsInitializing(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated, token])
 
   const { data: progress } = useQuery<MyProgress>({
     queryKey: ['progress'],
     queryFn: () => api.get('/progress/me').then((r) => r.data),
-    enabled: !!token,
+    enabled: !!token && !!user,
   })
 
   const { data: courses } = useQuery<Course[]>({
     queryKey: ['courses'],
     queryFn: () => api.get('/courses').then((r) => r.data),
-    enabled: !!token,
+    enabled: !!token && !!user,
   })
 
-  if (!user) return null
+  if (!_hasHydrated || isInitializing) return <LoadingSkeleton />
+  if (!user) return <LoadingSkeleton />
 
   const stats = [
     { label: 'Toplam XP', value: `${user.xp_points} XP`, icon: Zap, color: 'text-indigo-600 bg-indigo-50' },
@@ -47,7 +76,6 @@ export default function DashboardPage() {
       <Navbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8">
-        {/* Greeting */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -59,7 +87,6 @@ export default function DashboardPage() {
           <p className="mt-1 text-slate-500">Öyrənməyə davam et</p>
         </motion.div>
 
-        {/* XP Bar */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -73,7 +100,6 @@ export default function DashboardPage() {
           <XPBar xp={user.xp_points} level={user.level} />
         </motion.div>
 
-        {/* Stats */}
         <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {stats.map(({ label, value, icon: Icon, color }, i) => (
             <motion.div
@@ -92,7 +118,6 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Courses */}
         <div>
           <h2 className="mb-4 text-lg font-semibold text-slate-900">Kurslar</h2>
           {courses && courses.length > 0 ? (

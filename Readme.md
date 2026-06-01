@@ -179,7 +179,7 @@ http://127.0.0.1:8000/docs
 ✅ TablePlus ilə DB bağlantısı  
 ✅ Swagger UI  
 
-### 01.06.2026
+### 01.06.2026 — Backend API
 ✅ `api/deps.py` — JWT Bearer authentication dependency  
 ✅ `api/courses.py` — Kurs + Dərs tam CRUD (12 endpoint)  
 ✅ `models/quiz.py` — Quiz və Question SQLAlchemy modelləri  
@@ -188,6 +188,24 @@ http://127.0.0.1:8000/docs
 ✅ `api/progress.py` — Dərs tamamlama, XP sistemi, liderboard  
 ✅ `main.py` — Bütün 5 router qeydiyyatda (19 endpoint)  
 ✅ `.gitignore` — venv, \_\_pycache\_\_, .env istisna edildi  
+
+### 01.06.2026 — Frontend
+✅ Next.js 14 (App Router) + TypeScript qurulumu  
+✅ Tailwind CSS + shadcn/ui + Framer Motion  
+✅ Landing səhifəsi — animated hero, feature kartları  
+✅ Qeydiyyat və giriş formaları (JWT auth)  
+✅ Dashboard — XP bar animasiyası, stat kartları, kurs siyahısı  
+✅ Kurslar səhifəsi — axtarış, skeleton loader  
+✅ Kurs detalları — dərs siyahısı, progress bar, kilit sistemi  
+✅ Dərs səhifəsi — YouTube embed, tamamla + XP toast, quiz modal  
+✅ Liderboard — Top 10, tac ikonları  
+✅ Zustand auth state (persist + hydration guard)  
+✅ TanStack Query ilə API caching  
+✅ Bug fix: error mesajı object deyil string render edilir  
+✅ Bug fix: Zustand hydration race condition — ağ ekran aradan qaldırıldı  
+✅ Bug fix: `fetchMe` yalnız 401-də tokeni silir  
+✅ `tsconfig.json` — `forceConsistentCasingInFileNames` əlavə edildi  
+✅ Tailwind v4 uyğunluğu — `bg-gradient-to-r` → `bg-linear-to-r`  
 
 ---
 
@@ -203,10 +221,10 @@ http://127.0.0.1:8000/docs
 - [x] Protected route-lar (JWT dependency)
 
 ### Faza 2 — İstifadəçi Təcrübəsi (Həftə 5–7)
-- [ ] XP + level sistemi
-- [ ] Daily streak
-- [ ] Dashboard
-- [ ] Frontend (Next.js)
+- [x] XP + level sistemi
+- [x] Daily streak
+- [x] Dashboard
+- [x] Frontend (Next.js)
 
 ### Faza 3 — AI Mentor (Həftə 8–10)
 - [ ] Claude API inteqrasiyası

@@ -23,7 +23,7 @@ export default function XPBar({ xp, level, className }: Props) {
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-slate-100">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-violet-500"
+          className="h-full rounded-full bg-linear-to-r from-indigo-500 to-violet-500"
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
