@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="az" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full bg-slate-50">{<Providers>{children}</Providers>}</body>
+      <body className="min-h-full" style={{ background: '#060B18', color: '#F1F5F9' }}>
+        <canvas id="confetti-canvas" style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none', display: 'none' }} />
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

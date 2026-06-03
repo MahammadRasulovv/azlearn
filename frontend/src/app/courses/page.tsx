@@ -1,22 +1,23 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
-import { Search } from 'lucide-react'
-import { useState } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import CourseCard from '@/components/course/CourseCard'
-import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
+import { T } from '@/lib/design'
 import type { Course } from '@/types'
+
+const CATS = ['Hamısı', 'Proqramlaşdırma', 'Veb Dizayn', 'Dillər', 'Biznes']
 
 export default function CoursesPage() {
   const router = useRouter()
   const { token, _hasHydrated } = useAuthStore()
   const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState('Hamısı')
+  const [focused, setFocused] = useState(false)
 
   useEffect(() => {
     if (!_hasHydrated) return
@@ -30,55 +31,84 @@ export default function CoursesPage() {
     enabled: !!token,
   })
 
-  const filtered = courses?.filter(
-    (c) =>
-      c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.category?.toLowerCase().includes(search.toLowerCase())
-  ) ?? []
+  const shown = (courses ?? []).filter((c) => {
+    const q = search.toLowerCase()
+    const okQ = !q || c.title.toLowerCase().includes(q) || (c.category ?? '').toLowerCase().includes(q)
+    const okCat = filter === 'Hamısı' || c.category === filter
+    return okQ && okCat
+  })
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div style={{ minHeight: '100vh', background: T.bg }}>
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Kurslar</h1>
-            <p className="text-sm text-slate-500">{courses?.length ?? 0} kurs mövcuddur</p>
-          </div>
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              placeholder="Kurs axtar..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-10"
-            />
-          </div>
-        </motion.div>
+      {/* Page header */}
+      <div style={{ padding: '48px 64px 36px', borderBottom: `1px solid ${T.border}` }}>
+        <h1 style={{ fontSize: 50, fontWeight: 900, letterSpacing: '-0.045em', marginBottom: 8 }}>
+          Kurslar{' '}
+          <span style={{ background: T.grad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>keşf et</span>
+        </h1>
+        <p style={{ fontSize: 16, color: T.muted, marginBottom: 28 }}>200+ kurs — Azərbaycan dilində</p>
 
+        {/* Search */}
+        <div style={{ position: 'relative', maxWidth: 500, marginBottom: 22 }}>
+          <span style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', fontSize: 18, opacity: .5, pointerEvents: 'none' }}>🔍</span>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            placeholder="Kurs axtar... (məs: Python, SQL, Dizayn)"
+            style={{
+              width: '100%', padding: '13px 15px 13px 46px',
+              background: 'rgba(255,255,255,.07)',
+              border: `1px solid ${focused ? 'rgba(99,102,241,.55)' : T.border}`,
+              borderRadius: 14, fontSize: 15, color: T.text,
+              fontFamily: 'inherit', outline: 'none',
+              transition: 'all .22s ease',
+              boxShadow: focused ? '0 0 0 3px rgba(99,102,241,.16)' : 'none',
+            }}
+          />
+        </div>
+
+        {/* Filter chips */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {CATS.map(c => (
+            <button key={c} onClick={() => setFilter(c)} style={{
+              padding: '8px 20px', borderRadius: 100, fontSize: 14, fontWeight: 700,
+              fontFamily: 'inherit', cursor: 'pointer',
+              transition: `all .22s ${T.spring}`,
+              background: filter === c ? T.grad : 'rgba(255,255,255,.06)',
+              color: filter === c ? '#fff' : T.muted,
+              border: filter === c ? 'none' : `1px solid ${T.border}`,
+              boxShadow: filter === c ? '0 4px 18px rgba(99,102,241,.35)' : 'none',
+              transform: filter === c ? 'scale(1.05)' : 'scale(1)',
+            }}>{c}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Grid */}
+      <div style={{ padding: '36px 64px 72px' }}>
+        <p style={{ fontSize: 14, color: T.dim, marginBottom: 22, fontWeight: 600 }}>{shown.length} kurs tapıldı</p>
         {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', gap: 22 }}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-44 animate-pulse rounded-xl bg-slate-200" />
+              <div key={i} style={{ height: 280, borderRadius: 22, background: 'rgba(255,255,255,.04)', animation: 'pulse 1.5s ease-in-out infinite' }} />
             ))}
           </div>
-        ) : filtered.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((course, i) => (
-              <CourseCard key={course.id} course={course} index={i} />
-            ))}
+        ) : shown.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '100px 20px' }}>
+            <div style={{ fontSize: 72, marginBottom: 18 }}>🔍</div>
+            <p style={{ fontSize: 20, color: T.muted }}>Heç bir kurs tapılmadı</p>
+            <p style={{ fontSize: 15, color: T.dim, marginTop: 8 }}>Fərqli açar söz sınayın</p>
           </div>
         ) : (
-          <div className="py-16 text-center text-slate-400">
-            {search ? `"${search}" üzrə nəticə tapılmadı` : 'Hələ kurs yoxdur'}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(290px,1fr))', gap: 22 }}>
+            {shown.map((c, i) => <CourseCard key={c.id} course={c} index={i} />)}
           </div>
         )}
-      </main>
+      </div>
     </div>
   )
 }

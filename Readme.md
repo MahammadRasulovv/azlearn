@@ -1,7 +1,6 @@
-# AzLearn — Azerbaijani Programming Learning Platform
+# AzLearn — Azərbaycanca Proqramlaşdırma Platforması
 
-## Layihə haqqında
-YouTube pulsuz proqramlaşdırma kurslarını strukturlaşdırılmış öyrənmə yollarına çevirən müasir veb platforma. Azərbaycanca dəstək, progress tracking, quiz, gamification və AI mentor.
+Azərbaycanca strukturlaşdırılmış proqramlaşdırma kursları — YouTube embed, konspekt, quiz, XP/level sistemi və liderboard ilə.
 
 ---
 
@@ -9,58 +8,49 @@ YouTube pulsuz proqramlaşdırma kurslarını strukturlaşdırılmış öyrənm�
 
 ### Backend
 - **FastAPI** (Python 3.12)
-- **PostgreSQL 16** (Docker)
-- **Redis 7** (Docker)
-- **SQLAlchemy** ORM + Alembic
+- **PostgreSQL 16**
+- **SQLAlchemy** ORM
 - **Pydantic v2**
 - **JWT Auth** (python-jose + passlib/bcrypt)
 
-### Frontend (hələ başlanmayıb)
-- Next.js 14 (App Router)
-- TypeScript
-- Tailwind CSS + shadcn/ui
-- Framer Motion
-- TanStack Query + Zustand
-
-### Infrastructure
-- Docker Compose (local)
-- Vercel (frontend — deploy üçün)
-- Railway (backend — deploy üçün)
+### Frontend
+- **Next.js 16** (App Router) + React 19
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Framer Motion v12**
+- **TanStack Query v5** + **Zustand v5**
 
 ---
 
 ## Qurulum
 
 ### Tələblər
-- Python 3.12
+- Python 3.12+
 - Node.js 20+
-- Docker Desktop
-- Git
+- PostgreSQL 16
 
-### Local işlətmək
+### Backend
 
-```bash
-# 1. Repo-nu klon et
-git clone <repo-url>
-cd azlearn
-
-# 2. Docker ilə DB qaldır
-docker-compose up -d
-
-# 3. Backend qur
+```powershell
 cd backend
-py -3.12 -m venv venv
-.\venv\Scripts\Activate.ps1   # Windows
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 
-# 4. .env faylı yarat
-# (aşağıdakı Environment Variables bölməsinə bax)
-
-# 5. Serveri işlət
+# .env faylı yarat (aşağıya bax)
 uvicorn app.main:app --reload
 ```
 
-### Environment Variables (.env)
+### Frontend
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+### Environment Variables (`backend/.env`)
+
 ```
 DATABASE_URL=postgresql://azlearn:azlearn123@localhost:5432/azlearn_db
 REDIS_URL=redis://localhost:6379
@@ -69,172 +59,160 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
+### Verilənlər bazasını doldur
+
+```powershell
+cd backend
+# Bütün kursları (Python 53 dərs) seed et
+python seed.py
+python seed_python.py
+python seed_quizzes.py
+```
+
 ---
 
 ## Layihə Strukturu
 
 ```
 azlearn/
-├── docker-compose.yml
-├── frontend/                  # Next.js (hələ başlanmayıb)
-└── backend/
-    ├── .env
-    ├── venv/
-    └── app/
-        ├── main.py            # FastAPI app + router-lər
-        ├── api/
-        │   └── auth.py        # Register + Login endpoint-ləri ✓
-        ├── core/
-        │   ├── config.py      # Pydantic Settings ✓
-        │   ├── database.py    # SQLAlchemy engine + session ✓
-        │   └── security.py    # JWT + bcrypt ✓
-        ├── models/
-        │   ├── user.py        # User cədvəli ✓
-        │   ├── course.py      # Course + Lesson cədvəlləri ✓
-        │   └── progress.py    # UserProgress + QuizAttempt cədvəlləri ✓
-        └── schemas/
-            ├── user.py        # User Pydantic schema-ları ✓
-            └── course.py      # Course + Lesson schema-ları ✓ (yarımçıq)
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── api/          # auth, courses, quiz, progress
+│   │   ├── core/         # config, database, security
+│   │   ├── models/       # user, course, quiz, progress
+│   │   └── schemas/      # pydantic schema-lar
+│   ├── seed.py           # əsas kurslar
+│   ├── seed_python.py    # Python kursu 53 dərs
+│   └── seed_quizzes.py   # 32 quiz, 128 sual
+└── frontend/
+    └── src/
+        ├── app/           # Next.js App Router
+        │   ├── page.tsx          # Landing
+        │   ├── dashboard/        # İstifadəçi paneli
+        │   ├── courses/          # Kurs siyahısı + detallar
+        │   ├── lessons/[id]/     # Dərs səhifəsi
+        │   ├── leaderboard/      # Liderboard
+        │   ├── login/ register/  # Auth
+        │   └── layout.tsx
+        ├── components/
+        │   ├── layout/Navbar.tsx
+        │   ├── course/CourseCard.tsx
+        │   ├── quiz/QuizModal.tsx
+        │   └── ui/               # ProgressRing, WolfMascot, XPBar...
+        ├── lib/
+        │   ├── api.ts            # Axios instance
+        │   ├── design.ts         # Design tokens + confetti
+        │   └── utils.ts
+        ├── stores/auth.ts        # Zustand auth store
+        └── types/index.ts
 ```
-
----
-
-## DB Cədvəlləri
-
-| Cədvəl | Təsvir | Status |
-|---|---|---|
-| users | İstifadəçilər, XP, level, streak | ✓ Hazır |
-| courses | Kurslar | ✓ Hazır |
-| lessons | Dərslər (YouTube URL, qeydlər) | ✓ Hazır |
-| user_progress | Dərs tamamlama, quiz nəticəsi | ✓ Hazır |
-| quiz_attempts | Quiz cəhdləri, xal | ✓ Hazır |
 
 ---
 
 ## API Endpoint-ləri
 
 ### Auth
-| Method | URL | Təsvir | Status |
-|---|---|---|---|
-| POST | /auth/register | Qeydiyyat | ✓ İşləyir |
-| POST | /auth/login | Giriş (JWT token) | ✓ İşləyir |
+| Method | URL | Təsvir |
+|--------|-----|--------|
+| POST | `/auth/register` | Qeydiyyat |
+| POST | `/auth/login` | Giriş → JWT token |
+| GET | `/auth/me` | Cari istifadəçi |
 
 ### Courses
-| Method | URL | Təsvir | Status |
-|---|---|---|---|
-| GET | /courses | Yayımlanmış kurslar | ✓ İşləyir |
-| GET | /courses/all | Bütün kurslar (auth) | ✓ İşləyir |
-| POST | /courses | Kurs yarat | ✓ İşləyir |
-| GET | /courses/{id} | Kurs detalları | ✓ İşləyir |
-| PUT | /courses/{id} | Kurs yenilə | ✓ İşləyir |
-| DELETE | /courses/{id} | Kurs sil | ✓ İşləyir |
-| PATCH | /courses/{id}/publish | Yayımla / ləğv et | ✓ İşləyir |
-| POST | /courses/{id}/lessons | Dərs əlavə et | ✓ İşləyir |
-| GET | /courses/{id}/lessons | Dərsləri siyahıla | ✓ İşləyir |
-| GET | /lessons/{id} | Dərs detalları | ✓ İşləyir |
-| PUT | /lessons/{id} | Dərs yenilə | ✓ İşləyir |
-| DELETE | /lessons/{id} | Dərs sil | ✓ İşləyir |
+| Method | URL | Təsvir |
+|--------|-----|--------|
+| GET | `/courses` | Kurs siyahısı |
+| GET | `/courses/{id}` | Kurs + dərslər |
+| GET | `/lessons/{id}` | Dərs detalları |
 
 ### Progress
-| Method | URL | Təsvir | Status |
-|---|---|---|---|
-| POST | /progress/lesson/{id}/complete | Dərsi tamamla → XP qazandır | ✓ İşləyir |
-| GET | /progress/me | Öz statistikam | ✓ İşləyir |
-| GET | /progress/me/lessons | Tamamladığım dərslər | ✓ İşləyir |
-| GET | /progress/leaderboard | Top 10 liderboard | ✓ İşləyir |
+| Method | URL | Təsvir |
+|--------|-----|--------|
+| POST | `/progress/lesson/{id}/complete` | Dərsi tamamla → XP |
+| GET | `/progress/me` | Öz statistikası |
+| GET | `/progress/me/lessons` | Tamamlanan dərslər |
+| GET | `/progress/leaderboard` | Top liderboard |
 
 ### Quiz
-| Method | URL | Təsvir | Status |
-|---|---|---|---|
-| POST | /quizzes | Quiz yarat | ✓ İşləyir |
-| GET | /quizzes/lesson/{lesson_id} | Dərsin quizi | ✓ İşləyir |
-| POST | /quizzes/{id}/questions | Sual əlavə et | ✓ İşləyir |
-| DELETE | /quizzes/{id}/questions/{q_id} | Sual sil | ✓ İşləyir |
-| POST | /quizzes/{id}/submit | Quiz göndər → nəticə | ✓ İşləyir |
+| Method | URL | Təsvir |
+|--------|-----|--------|
+| GET | `/quizzes/lesson/{lesson_id}` | Dərsin quizi |
+| POST | `/quizzes/{id}/submit` | Quiz cavabları göndər |
 
-### AI Mentor (hələ yazılmayıb)
-| Method | URL | Təsvir | Status |
-|---|---|---|---|
-| POST | /ai/ask | AI-ə sual ver | ⏳ |
+**Swagger UI:** `http://localhost:8000/docs`
 
 ---
 
-## Swagger UI
-```
-http://127.0.0.1:8000/docs
-```
+## Xüsusiyyətlər
+
+### Dərs Axını
+Hər dərs 3 addımdan ibarətdir:
+1. **🎬 Video** — YouTube embed, tam ekran
+2. **📒 Konspekt** — Azərbaycanca ətraflı izah + kod nümunələri
+3. **📝 Quiz** — 4 seçimli suallar, keçmək üçün 60%
+
+Növbəti dərs yalnız quiz keçildikdən sonra açılır.
+
+### Gamification
+- **XP sistemi** — hər dərs və quiz üçün XP
+- **Level sistemi** — hər 500 XP-də yeni level
+- **Streak** — ardıcıl öyrənmə günləri
+- **Liderboard** — top istifadəçilər
+- **Nailiyyətlər** — xüsusi tapşırıqları tamamlamaq
+
+### Python Kursu
+- **53 dərs** — tam YouTube playlist
+- **32 quiz** — hər əsas mövzu üçün
+- **128 sual** — A/B/C/D formatında
+- Hər dərsdə Azərbaycanca konspekt + praktiki tapşırıqlar
 
 ---
 
 ## İrəliləyiş
 
-### 31.05.2026
-✅ Python 3.12 + virtual environment  
-✅ Node.js 24  
-✅ Docker Desktop  
-✅ PostgreSQL + Redis (Docker Compose)  
-✅ FastAPI layihə strukturu  
-✅ Bütün DB modelləri + cədvəllər  
-✅ JWT Auth sistemi (register + login işləyir)  
-✅ TablePlus ilə DB bağlantısı  
-✅ Swagger UI  
+### 31.05.2026 — Başlanğıc
+- Python + Docker + PostgreSQL mühiti
+- FastAPI layihə strukturu
+- DB modelləri + JWT auth
 
 ### 01.06.2026 — Backend API
-✅ `api/deps.py` — JWT Bearer authentication dependency  
-✅ `api/courses.py` — Kurs + Dərs tam CRUD (12 endpoint)  
-✅ `models/quiz.py` — Quiz və Question SQLAlchemy modelləri  
-✅ `schemas/quiz.py` — Quiz schema-ları (cavab validasiyası ilə)  
-✅ `api/quiz.py` — Quiz yarat, sual əlavə et, submit + avtomatik qiymətləndirmə  
-✅ `api/progress.py` — Dərs tamamlama, XP sistemi, liderboard  
-✅ `main.py` — Bütün 5 router qeydiyyatda (19 endpoint)  
-✅ `.gitignore` — venv, \_\_pycache\_\_, .env istisna edildi  
+- Kurs, Dərs, Quiz, Progress tam CRUD
+- XP + level + streak sistemi
+- Liderboard endpoint
 
-### 01.06.2026 — Frontend
-✅ Next.js 14 (App Router) + TypeScript qurulumu  
-✅ Tailwind CSS + shadcn/ui + Framer Motion  
-✅ Landing səhifəsi — animated hero, feature kartları  
-✅ Qeydiyyat və giriş formaları (JWT auth)  
-✅ Dashboard — XP bar animasiyası, stat kartları, kurs siyahısı  
-✅ Kurslar səhifəsi — axtarış, skeleton loader  
-✅ Kurs detalları — dərs siyahısı, progress bar, kilit sistemi  
-✅ Dərs səhifəsi — YouTube embed, tamamla + XP toast, quiz modal  
-✅ Liderboard — Top 10, tac ikonları  
-✅ Zustand auth state (persist + hydration guard)  
-✅ TanStack Query ilə API caching  
-✅ Bug fix: error mesajı object deyil string render edilir  
-✅ Bug fix: Zustand hydration race condition — ağ ekran aradan qaldırıldı  
-✅ Bug fix: `fetchMe` yalnız 401-də tokeni silir  
-✅ `tsconfig.json` — `forceConsistentCasingInFileNames` əlavə edildi  
-✅ Tailwind v4 uyğunluğu — `bg-gradient-to-r` → `bg-linear-to-r`  
+### 01.06.2026 — Frontend v1
+- Next.js 16 + TypeScript qurulumu
+- Landing, Dashboard, Kurslar, Dərs, Liderboard
+- YouTube embed, Quiz modal
+- Zustand + TanStack Query
+
+### 03.06.2026 — Tam Dizayn + Məzmun
+- Tam qaranlıq UI (dark theme)
+- Wolf maskot + animasiyalar (Framer Motion + CSS keyframes)
+- 3-addımlı dərs axını: Video → Konspekt → Quiz
+- Python kursu: 53 real video (YouTube playlist)
+- 32 quiz, 128 sual Azərbaycan dilində
+- Azərbaycanca encoding düzəldildi
+- Responsive sidebar + dərs naviqasiyası
 
 ---
 
 ## Roadmap
 
-### Faza 1 — Təməl (Həftə 1–4)
-- [x] Mühit qurulumu
-- [x] DB schema
-- [x] Auth sistemi
-- [x] Kurs + Dərs API-ləri
-- [x] Progress tracking
-- [x] Quiz sistemi
-- [x] Protected route-lar (JWT dependency)
+### Tamamlanmış
+- [x] Backend API (auth, kurslar, quiz, progress)
+- [x] Frontend dark UI
+- [x] YouTube embed + 3-addımlı dərs axını
+- [x] Python kursu — 53 dərs + 32 quiz
+- [x] Gamification (XP, level, streak, liderboard)
 
-### Faza 2 — İstifadəçi Təcrübəsi (Həftə 5–7)
-- [x] XP + level sistemi
-- [x] Daily streak
-- [x] Dashboard
-- [x] Frontend (Next.js)
-
-### Faza 3 — AI Mentor (Həftə 8–10)
-- [ ] Claude API inteqrasiyası
-- [ ] Azərbaycanca sistem prompt
-- [ ] Token limiti
-
-### Faza 4 — Launch (Həftə 11–13)
+### Növbəti
+- [ ] Digər kurslar üçün məzmun (Web, SQL, ML, İngilis)
+- [ ] AI Mentor (Claude API — Azərbaycan dilində)
 - [ ] Admin panel
 - [ ] Deploy (Vercel + Railway)
-- [ ] Beta test
+- [ ] Sertifikat sistemi
 
 ---
 

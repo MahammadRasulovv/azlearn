@@ -5,8 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Zap } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth'
 import type { Token } from '@/types'
@@ -24,86 +22,78 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       await api.post('/auth/register', form)
-      const { data } = await api.post<Token>('/auth/login', {
-        email: form.email,
-        password: form.password,
-      })
+      const { data } = await api.post<Token>('/auth/login', { email: form.email, password: form.password })
       setToken(data.access_token)
       await fetchMe()
       router.push('/dashboard')
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
       const msg = Array.isArray(detail)
-        ? (detail as { msg: string }[]).map((d) => d.msg).join(', ')
-        : typeof detail === 'string'
-        ? detail
-        : 'Qeydiyyat alınmadı'
+        ? (detail as { msg: string }[]).map(d => d.msg).join(', ')
+        : typeof detail === 'string' ? detail : 'Qeydiyyat alınmadı'
       setError(msg)
     } finally {
       setLoading(false)
     }
   }
 
-  const field = (key: keyof typeof form, label: string, type = 'text', placeholder = '') => (
-    <div>
-      <label className="mb-1.5 block text-sm font-medium text-slate-700">{label}</label>
-      <Input
-        type={type}
-        placeholder={placeholder}
-        value={form[key]}
-        onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
-        required={key !== 'full_name'}
-        className="h-11"
-      />
-    </div>
-  )
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '11px 14px', background: 'rgba(255,255,255,.07)',
+    border: '1px solid rgba(255,255,255,.12)', borderRadius: 12, fontSize: 15,
+    color: '#F1F5F9', fontFamily: 'inherit', outline: 'none',
+  }
+  const labelStyle: React.CSSProperties = { display: 'block', marginBottom: 6, fontSize: 13, fontWeight: 600, color: '#94A3B8' }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-sm"
-      >
-        <div className="mb-8 flex flex-col items-center">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-200">
+    <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: '#060B18', padding: '0 16px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,.18) 0%,transparent 70%)', top: -150, right: -150, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(6,182,212,.14) 0%,transparent 70%)', bottom: -100, left: -100, pointerEvents: 'none' }} />
+
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} style={{ width: '100%', maxWidth: 380, position: 'relative' }}>
+        <div style={{ marginBottom: 28, textAlign: 'center' }}>
+          <div style={{ width: 52, height: 52, borderRadius: 15, background: 'linear-gradient(135deg,#6366F1 0%,#06B6D4 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 0 24px rgba(99,102,241,.5)' }}>
             <Zap className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Hesab aç</h1>
-          <p className="mt-1 text-sm text-slate-500">Pulsuz qeydiyyatdan keç</p>
+          <h1 style={{ fontSize: 26, fontWeight: 900, letterSpacing: '-0.03em', color: '#F1F5F9' }}>Hesab aç</h1>
+          <p style={{ fontSize: 14, color: '#94A3B8', marginTop: 4 }}>Pulsuz qeydiyyatdan keç</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {field('full_name', 'Ad Soyad', 'text', 'Əli Həsənov')}
-          {field('username', 'İstifadəçi adı', 'text', 'alihesenov')}
-          {field('email', 'Email', 'email', 'siz@example.com')}
-          {field('password', 'Şifrə', 'password', '••••••••')}
+        <div style={{ background: 'rgba(255,255,255,0.055)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 24, padding: '40px 36px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {([
+              ['full_name', 'Ad Soyad',        'text',     'Əli Həsənov'],
+              ['username',  'İstifadəçi adı',   'text',     'alihesenov'],
+              ['email',     'Email',             'email',    'siz@example.com'],
+              ['password',  'Şifrə',             'password', '••••••••'],
+            ] as [keyof typeof form, string, string, string][]).map(([key, label, type, placeholder]) => (
+              <div key={key}>
+                <label htmlFor={key} style={labelStyle}>{label}</label>
+                <input
+                  id={key} type={type} placeholder={placeholder}
+                  value={form[key]}
+                  onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                  required={key !== 'full_name'}
+                  style={inputStyle}
+                />
+              </div>
+            ))}
 
-          {error && (
-            <motion.p
-              initial={{ opacity: 0, x: -6 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
-            >
-              {error}
-            </motion.p>
-          )}
+            {error && (
+              <motion.p initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}
+                style={{ background: 'rgba(239,68,68,.14)', border: '1px solid rgba(239,68,68,.3)', borderRadius: 10, padding: '8px 12px', fontSize: 13, color: '#FCA5A5' }}>
+                {error}
+              </motion.p>
+            )}
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="h-11 w-full bg-indigo-600 hover:bg-indigo-700 text-base font-semibold"
-          >
-            {loading ? 'Qeydiyyat olunur...' : 'Qeydiyyat'}
-          </Button>
-        </form>
+            <button type="submit" disabled={loading} style={{ background: 'linear-gradient(135deg,#6366F1 0%,#06B6D4 100%)', color: '#fff', border: 'none', borderRadius: 12, padding: 13, fontSize: 16, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'inherit', opacity: loading ? .7 : 1, boxShadow: '0 0 22px rgba(99,102,241,.45)', transition: 'opacity .2s' }}>
+              {loading ? 'Qeydiyyat olunur...' : 'Qeydiyyat'}
+            </button>
+          </form>
+        </div>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p style={{ marginTop: 20, textAlign: 'center', fontSize: 14, color: '#94A3B8' }}>
           Hesabınız var?{' '}
-          <Link href="/login" className="font-semibold text-indigo-600 hover:underline">
-            Daxil ol
-          </Link>
+          <Link href="/login" style={{ fontWeight: 700, color: '#818CF8', textDecoration: 'none' }}>Daxil ol</Link>
         </p>
       </motion.div>
     </div>
