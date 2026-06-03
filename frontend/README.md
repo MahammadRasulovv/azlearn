@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AzLearn — Frontend
 
-## Getting Started
+Next.js 16 + React 19 + TypeScript ilə qurulmuş AzLearn platformasının frontend hissəsi.
 
-First, run the development server:
+## Tech Stack
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Framer Motion v12**
+- **TanStack Query v5**
+- **Zustand v5**
+- **Axios**
+
+## Qurulum
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`http://localhost:3000` ünvanında açılır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Backend `http://localhost:8000`-də işləməlidir (`backend/.env` faylına bax).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Səhifələr
 
-## Learn More
+| Route | Təsvir |
+|-------|--------|
+| `/` | Landing — hero, kurslar, necə işləyir |
+| `/login` | Giriş |
+| `/register` | Qeydiyyat |
+| `/dashboard` | İstifadəçi paneli — XP, nailiyyətlər, liderboard |
+| `/courses` | Kurs siyahısı + kateqoriya filtri |
+| `/courses/[id]` | Kurs detalları + curriculum |
+| `/lessons/[id]` | Dərs səhifəsi (Video → Konspekt → Quiz) |
+| `/leaderboard` | Liderboard |
 
-To learn more about Next.js, take a look at the following resources:
+## Dərs Axını
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+🎬 Video  →  📒 Konspekt  →  📝 Quiz  →  Növbəti dərs açılır
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Hər addım tamamlanmadan növbəti bloklanır.
 
-## Deploy on Vercel
+## Əsas Komponentlər
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Komponent | Məqsəd |
+|-----------|--------|
+| `Navbar` | Sticky qaranlıq navbar, user stats |
+| `CourseCard` | Kurs kartı, hover animasiyası |
+| `QuizModal` | Sual-sual quiz, nəticə ekranı |
+| `ProgressRing` | SVG dairəvi progress |
+| `WolfMascot` | Wolf şəkli, emoji fallback |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Mühit Dəyişənləri
+
+`.env.local` faylı yarat:
+
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+## Build
+
+```bash
+npm run build
+npm run start
+```
